@@ -4,14 +4,16 @@
    examples in the HTML.
  */
 
-const fs = require('fs');
-const path = require('path');
-const escape = require('escape-html');
-const prism = require('prismjs');
-require('prismjs/components/prism-scss');
-require('prismjs/components/prism-typescript');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import escape from 'escape-html';
+import prism from 'prismjs';
 
-const utils = require('./utils.js');
+import { escapeAtForAngular, escapeBracesForAngular, readdirRecursivelySync } from './utils.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** Generate template for a single file */
 function generateTemplate(templateFile, snippetsDir) {
@@ -38,8 +40,8 @@ function generateTemplate(templateFile, snippetsDir) {
     styleNavHtml = navHtml(path.basename(styleFile), styleFileContent, 'scss');
   }
   const fileNameAndPath = process.platform === "win32" ? templateFile.split('\\') : templateFile.split('/');
-  const fileName = fileNameAndPath[fileNameAndPath.length -1];
-  const navName = fileName.replace(/-/g,'').replace('.component','').replace('.template.html', 'Nav');
+  const fileName = fileNameAndPath[fileNameAndPath.length - 1];
+  const navName = fileName.replace(/-/g, '').replace('.component', '').replace('.template.html', 'Nav');
 
   const outputHtmlFileContent = `
   <h2 class="snippet-title" id="${sectionIdTemplateFileContent}">${titleTemplateFileContent}
@@ -62,12 +64,12 @@ function generateTemplate(templateFile, snippetsDir) {
   </div>
 </div>`;
 
-  fs.writeFileSync(path.resolve(snippetsDir, outputTemplateFile), utils.escapeAtForAngular(outputHtmlFileContent), { encoding: 'utf8' });
+  fs.writeFileSync(path.resolve(snippetsDir, outputTemplateFile), escapeAtForAngular(outputHtmlFileContent), { encoding: 'utf8' });
 }
 
 /** Generate highlighted source code using prism */
 function highlight(code, lang) {
-  return prism.highlight(code.trim(), prism.languages[lang]);
+  return prism.highlight(code.trim(), {}, prism.languages[lang]);
 }
 
 /** Common HTML template for tab */
@@ -75,7 +77,7 @@ function navHtml(tabTitle, codeContent, codeLang) {
   return `<li ngbNavItem>
       <a ngbNavLink>${escape(tabTitle)}</a>
       <ng-template ngbNavContent>
-        <pre class="language-${codeLang}"><code class="language-${codeLang}">${utils.escapeBracesForAngular(highlight(codeContent, codeLang))}</code></pre>
+        <pre class="language-${codeLang}"><code class="language-${codeLang}">${escapeBracesForAngular(highlight(codeContent, codeLang))}</code></pre>
       </ng-template>
     </li>`;
 }
@@ -83,7 +85,7 @@ function navHtml(tabTitle, codeContent, codeLang) {
 
 const snippetsDir = path.resolve(__dirname, '../src/demo-app/app/snippets');
 
-const templateFiles = utils.readdirRecursivelySync(snippetsDir)
+const templateFiles = readdirRecursivelySync(snippetsDir)
   .filter((file) => file.endsWith('component.template.html'));
 
 for (let templateFile of templateFiles) {

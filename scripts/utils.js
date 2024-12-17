@@ -1,8 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** Get all files in directory recursively, synchronously */
-function readdirRecursivelySync(dir) {
+export function readdirRecursivelySync(dir) {
   let results = [];
   const list = fs.readdirSync(dir);
   for (let file of list) {
@@ -18,25 +22,19 @@ function readdirRecursivelySync(dir) {
 }
 
 /** Copy README.md from given location to the library directory */
-function copyReadmeMd(sourceReadmeMd) {
+export function copyReadmeMd(sourceReadmeMd) {
   const libReadmeFile = path.resolve(__dirname, '../src/ngx-slider/README.md');
 
-  const sourceReadme = fs.readFileSync(sourceReadmeMd, { encoding: 'utf8'});
-  fs.writeFileSync(libReadmeFile, sourceReadme, {encoding: 'utf8'});
+  const sourceReadme = fs.readFileSync(sourceReadmeMd, { encoding: 'utf8' });
+  fs.writeFileSync(libReadmeFile, sourceReadme, { encoding: 'utf8' });
 }
 
 /** Escape { and } or otherwise Angular will complain when we're not actually using them for bindings */
-function escapeBracesForAngular(html) {
+export function escapeBracesForAngular(html) {
   return html.replace(/([{}])/g, "{{ '$1' }}");
 }
 
 /** Escape at (@) character, which is also reserved in Angular templates now. */
-function escapeAtForAngular(html) {
+export function escapeAtForAngular(html) {
   return html.replace(/@/g, "&#64;");
 }
-
-
-exports.readdirRecursivelySync = readdirRecursivelySync;
-exports.copyReadmeMd = copyReadmeMd;
-exports.escapeBracesForAngular = escapeBracesForAngular;
-exports.escapeAtForAngular = escapeAtForAngular;

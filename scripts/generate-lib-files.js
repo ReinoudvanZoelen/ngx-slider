@@ -1,7 +1,11 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
 
-const utils = require("./utils.js");
+import { copyReadmeMd } from "./utils.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** Generate package.json file based on package.json.template and main package.json */
 function generatePackageJson() {
@@ -72,4 +76,4 @@ generatePackageJson();
 generatePublicApiTs();
 
 const mainReadmeFile = path.resolve(__dirname, "../README.md");
-utils.copyReadmeMd(mainReadmeFile);
+copyReadmeMd(mainReadmeFile);

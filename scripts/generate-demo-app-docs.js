@@ -3,13 +3,16 @@
    The files are then embedded as additional assets in the demo app.
  */
 
-const path = require("path");
-const mkdirp = require("mkdirp");
-const fs = require("fs");
-const rimraf = require("rimraf");
-const typedoc = require("typedoc");
+import path from "path";
+import { fileURLToPath } from 'url';
+import { sync as mkdirpSync } from "mkdirp";
+import fs from "fs";
+import { sync as rimrafSync } from "rimraf";
+import { Application, TSConfigReader, TypeDocReader } from "typedoc";
+import { copyReadmeMd } from "./utils.js";
 
-const utils = require("./utils.js");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** Run typedoc over library public API files to generate HTML files with documentation.
  */
@@ -27,26 +30,26 @@ async function generateTypedocDocs(typedocDocsDir) {
     __dirname,
     "../typedoc/README.md"
   );
-  utils.copyReadmeMd(apiDocsReadmeFile);
+  copyReadmeMd(apiDocsReadmeFile);
 
-  const app = await typedoc.Application.bootstrap({
+  const app = await Application.bootstrap({
     entryPoints: ["src/ngx-slider/lib/public_api.ts"],
   });
 
-  app.options.addReader(new typedoc.TSConfigReader());
-  app.options.addReader(new typedoc.TypeDocReader());
+  app.options.addReader(new TSConfigReader());
+  app.options.addReader(new TypeDocReader());
 
   const project = await app.convert();
   await app.generateDocs(project, typedocDocsDir);
 
   // HACK: restore the README.md to original
   const mainReadmeFile = path.resolve(__dirname, "../README.md");
-  utils.copyReadmeMd(mainReadmeFile);
+  copyReadmeMd(mainReadmeFile);
 }
 
-const typedocDocsDir = path.resolve( __dirname, "../docs");
-rimraf.sync(typedocDocsDir);
-mkdirp.sync(typedocDocsDir);
+const typedocDocsDir = path.resolve(__dirname, "../docs");
+rimrafSync(typedocDocsDir);
+mkdirpSync(typedocDocsDir);
 
 generateTypedocDocs(typedocDocsDir)
   .then(() => {

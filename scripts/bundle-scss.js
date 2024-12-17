@@ -1,9 +1,13 @@
-const path = require('path');
-const child_process = require('child_process');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import child_process from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function executeCommand(command, cwd) {
   console.log(`> ${command}`);
-  const output = child_process.execSync(command, {cwd: cwd});
+  const output = child_process.execSync(command, { cwd: cwd });
   if (output instanceof Buffer) {
     console.log(output.toString('utf8'));
   } else {
